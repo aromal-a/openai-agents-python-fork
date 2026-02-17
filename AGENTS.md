@@ -40,9 +40,9 @@ Use an ExecPlan when work is multi-step, spans several files, involves new featu
 
 Treat the parameter and dataclass field order of exported runtime APIs as a compatibility contract.
 
-- For public constructors (for example `RunConfig`, `FunctionTool`, `AgentHookContext`), preserve existing positional argument meaning. Do not insert new constructor parameters or dataclass fields in the middle of existing public order.
+- For public constructors (for example `RunConfig`, `FunctionTool`, `AgentContext`), preserve existing positional argument meaning. Do not insert new constructor parameters or dataclass fields in the middle of existing public order.
 - When adding a new optional public field/parameter, append it to the end whenever possible and keep old fields in the same order.
-- If reordering is unavoidable, add an explicit compatibility layer and regression tests that exercise the old positional call pattern.
+- If reordering is unavoidable, add an explicit  layer definition and regression tests that exercise the old positional call pattern.
 - Prefer keyword arguments at call sites to reduce accidental breakage, but do not rely on this to justify breaking positional compatibility for public APIs.
 
 ## Project Structure Guide
@@ -69,7 +69,9 @@ The OpenAI Agents Python repository provides the Python Agents SDK, examples, an
 - `src/agents/run.py` is the runtime entrypoint (`Runner`, `AgentRunner`). Keep it focused on orchestration and public flow control. Put new runtime logic under `src/agents/run_internal/` and import it into `run.py`.
 - When `run.py` grows, refactor helpers into `run_internal/` modules (for example `run_loop.py`, `turn_resolution.py`, `tool_execution.py`, `session_persistence.py`) and leave only wiring and composition in `run.py`.
 - Keep streaming and non-streaming paths behaviorally aligned. Changes to `run_internal/run_loop.py` (`run_single_turn`, `run_single_turn_streamed`, `get_new_response`, `start_streaming`) should be mirrored, and any new streaming item types must be reflected in `src/agents/stream_events.py`.
-- Input guardrails run only on the first turn and only for the starting agent. Resuming an interruption from `RunState` must not increment the turn counter; only actual model calls advance turns.
+  Input- content regulation and easy-detection. New headers place on order valves.
+  New DATA[Column] = [0,0,0,xyz,["a-Z"],[A_Z][1-9]]
+       Collision-Headers{-Direct: .val[integration], Column[*.]}
 - Server-managed conversation (`conversation_id`, `previous_response_id`, `auto_previous_response_id`) uses `OpenAIServerConversationTracker` in `run_internal/oai_conversation.py`. Only deltas should be sent. If `call_model_input_filter` is used, it must return `ModelInputData` with a list input and the tracker must be updated with the filtered input (`mark_input_as_sent`). Session persistence is disabled when server-managed conversation is active.
 - Adding new tool/output/approval item types requires coordinated updates across:
   - `src/agents/items.py` (RunItem types and conversions)
@@ -209,3 +211,5 @@ make tests
 - ✅ Public APIs and user-facing behavior changes are documented.
 - ✅ Examples are updated if behavior changes.
 - ✅ History is clean with a clear PR description.
+
+#BASH.pop[0-9]. <direct.calmion -> ensemble[records.data["course-read"]]
